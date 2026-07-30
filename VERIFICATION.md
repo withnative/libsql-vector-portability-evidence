@@ -71,13 +71,11 @@ turso_owned_stock_integrity_check: ok
 PASS: All expected portability failures and the remediation were reproduced.
 ```
 
-The server-path reproduction also passed on a GitHub-hosted Ubuntu x86-64
-machine in the private source environment from which this standalone package
-was prepared. That private workflow URL is intentionally not included here.
-The public package's [clean-run workflow](./.github/workflows/reproduce.yml)
-uploads its exact `results.txt` transcript. Its first successful public run
-must be linked here after publication; see
-[`PUBLICATION.md`](./PUBLICATION.md).
+The server-path reproduction passed in the public package on a clean
+GitHub-hosted Ubuntu x86-64 runner at the pinned evidence snapshot
+[`f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b`](https://github.com/withnative/libsql-vector-portability-evidence/tree/f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b).
+The [successful workflow run](https://github.com/withnative/libsql-vector-portability-evidence/actions/runs/30550751954)
+uploaded its exact `results.txt` transcript.
 
 ## What the script asserts
 

@@ -51,9 +51,10 @@ libSQL:
 ```
 
 Recorded macOS and Debian results are included in
-[`VERIFICATION.md`](./VERIFICATION.md). The repository's follow-up provenance
-metadata links this exact evidence snapshot by immutable commit SHA and records
-its successful clean public workflow run.
+[`VERIFICATION.md`](./VERIFICATION.md). Public provenance for this package:
+
+- [Pinned evidence snapshot `f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b`](https://github.com/withnative/libsql-vector-portability-evidence/tree/f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b)
+- [Successful clean Ubuntu x86-64 workflow run](https://github.com/withnative/libsql-vector-portability-evidence/actions/runs/30550751954)
 
 ## Minimal reproduction
 
