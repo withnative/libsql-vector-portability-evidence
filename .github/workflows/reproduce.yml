@@ -1,0 +1,35 @@
+name: Reproduce server-path evidence
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out the evidence package
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install stock SQLite and archive support
+        run: sudo apt-get update && sudo apt-get install -y sqlite3 xz-utils
+
+      - name: Run the pinned server-path reproduction
+        env:
+          RUN_EMBEDDED: "false"
+          FORCE_DOWNLOADS: "true"
+          OUTPUT_DIR: ${{ runner.temp }}/libsql-vector-portability
+        run: ./reproduce.sh
+
+      - name: Upload the exact run transcript
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: libsql-vector-portability-results
+          path: ${{ runner.temp }}/libsql-vector-portability/results.txt
+          if-no-files-found: error
