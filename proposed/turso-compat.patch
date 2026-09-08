@@ -1,0 +1,46 @@
+diff --git a/COMPAT.md b/COMPAT.md
+index dede2cb..e576646 100644
+--- a/COMPAT.md
++++ b/COMPAT.md
+@@ -98,6 +98,20 @@ an existing database that already contains invalid UTF-8 in a text column is
+ affected the same way. Storing and reading blobs is not affected; bytes only
+ change when they are converted to text.
+ 
++**libSQL vector-index schema from `sqld` is not openable in Turso Database.**
++A SQLite-format file produced by libSQL server (`sqld`) or embedded libSQL that
++contains `CREATE INDEX ... ON ... (libsql_vector_idx(...))`, together with the
++associated `libsql_vector_meta_shadow` and `<index>_shadow` objects, keeps its
++application table and vector blob columns readable in stock SQLite, but
++`PRAGMA integrity_check` and `.dump` reimport fail there because
++`libsql_vector_idx()` is unknown. Turso Database refuses to open the whole file
++with `invalid expression in CREATE INDEX: libsql_vector_idx (...)`. This is a
++cross-engine schema-portability gap, not evidence of data corruption. Removing
++the vector index and its shadow objects restores a conventional SQLite file.
++Independent reproduction:
++https://github.com/withnative/libsql-vector-portability-evidence/tree/REFRESH_COMMIT.
++
++
+ ## SQLite query language
+ 
+ ### Statements
+@@ -110,7 +124,7 @@ change when they are converted to text.
+ | BEGIN TRANSACTION         | ✅ Yes     |                                                                                   |
+ | COMMIT TRANSACTION        | ✅ Yes     |                                                                                   |
+ | CHECK                     | ✅ Yes     |                                                                                   |
+-| CREATE INDEX              | ✅ Yes     |                                                                                   |
++| CREATE INDEX              | ✅ Yes     | Expression indexes work for Turso-compiled expressions; libSQL-only markers such as `libsql_vector_idx(...)` prevent whole-file open (see Limitations). |
+ | CREATE TABLE              | ✅ Yes     |                                                                                   |
+ | CREATE TABLE ... STRICT   | ✅ Yes     |                                                                                   |
+ | CREATE TRIGGER            | ✅ Yes     |                                                                                   |
+@@ -1080,7 +1094,10 @@ The `regexp` extension is compatible with [sqlean-regexp](https://github.com/nal
+ 
+ ### Vector
+ 
+-The `vector` extension is compatible with libSQL native vector search.
++The `vector` extension covers libSQL-compatible vector *values* and distance
++functions. It does not imply that libSQL DiskANN vector *indexes* created
++with `libsql_vector_idx(...)` in libSQL server are openable in Turso Database
++or portable through stock SQLite validation and dump/reimport workflows.
+ 
+ | Function                                       | Status | Comment |
+ |------------------------------------------------|--------|---------|

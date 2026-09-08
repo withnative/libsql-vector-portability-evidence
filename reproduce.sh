@@ -3,11 +3,11 @@ set -euo pipefail
 
 # Minimal reproduction for libSQL vector-index export portability.
 #
-# Defaults are the latest stable releases as of 2026-07-30. Override any
+# Defaults are the latest stable releases as of 2026-09-08. Override any
 # executable with SQLD_BIN, TURSODB_BIN, SQLITE3_BIN, or CARGO_BIN.
 
 SQLD_VERSION="${SQLD_VERSION:-0.24.32}"
-TURSODB_VERSION="${TURSODB_VERSION:-0.7.1}"
+TURSODB_VERSION="${TURSODB_VERSION:-0.7.2}"
 LIBSQL_RUST_VERSION="0.9.30"
 SQLITE3_BIN="${SQLITE3_BIN:-sqlite3}"
 CARGO_BIN="${CARGO_BIN:-cargo}"
@@ -116,7 +116,7 @@ download_release_binary() {
   tar -xJf "$download_dir/$archive" -C "$download_dir"
 
   local resolved
-  resolved="$(find "$download_dir" -type f -name "$binary_name" -perm -111 -print | head -1)"
+  resolved="$(find "$download_dir" -type f -name "$binary_name" -perm /111 -print | head -1)"
   [[ -n "$resolved" ]] || fail "could not find $binary_name in $archive"
   printf '%s\n' "$resolved"
 }

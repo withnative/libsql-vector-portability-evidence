@@ -6,7 +6,7 @@ This repository contains a minimal, assertion-driven reproduction of a narrow
 schema-portability gap. A libSQL database containing an index created with
 `libsql_vector_idx(...)` keeps its application data and vector blobs in a
 SQLite-format file, but stock SQLite cannot validate or reimport the schema,
-and Turso Database 0.7.1 refuses to open the file.
+and Turso Database 0.7.2 refuses to open the file.
 
 Start with the standalone [report](./REPORT.md). The exact historical results
 are in [VERIFICATION.md](./VERIFICATION.md).
@@ -27,7 +27,7 @@ Run the complete reproduction:
 ./reproduce.sh
 ```
 
-The script downloads the pinned libSQL server 0.24.32 and Turso Database 0.7.1
+The script downloads the pinned libSQL server 0.24.32 and Turso Database 0.7.2
 release archives when matching executables are not already installed. It
 verifies them against the repository-owned
 [checksum manifest](./checksums/RELEASES.sha256) and the upstream checksum
@@ -85,6 +85,10 @@ shadow state preserves the application row and exact embedding bytes, restores
 
 The GitHub Actions workflow runs the server path on a clean Ubuntu x86-64
 runner and uploads `results.txt`.
+
+This evidence informs the Native
+[storage-portability protocol v1](https://github.com/withnative/native/tree/main/protocol/storage-portability/v1/)
+research draft.
 
 ## License
 

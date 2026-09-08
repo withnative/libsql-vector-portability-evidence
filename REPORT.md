@@ -1,6 +1,6 @@
 # libSQL vector-index exports are not operationally portable to stock SQLite or Turso Database
 
-Richard Ng · Native · 30 July 2026
+Richard Ng · Native · 30 July 2026 (refreshed 8 September 2026)
 
 ## Summary
 
@@ -8,7 +8,8 @@ A libSQL database containing an index created with
 `libsql_vector_idx(...)` remains a valid SQLite-format container, and its
 vector values remain ordinary portable blobs. However, the schema contains an
 engine-specific expression index that stock SQLite cannot validate or
-reimport, and Turso Database 0.7.1 refuses to open the file.
+reimport, and Turso Database 0.7.2 refuses to open the file (Turso Database
+0.7.1 produced the same parse error in the July 2026 historical runs).
 
 This is not evidence of data corruption. It is a narrow schema-portability
 gap: the application table and vector data remain readable, and removing the
@@ -16,25 +17,41 @@ vector-index schema objects restores a conventional SQLite database.
 
 ## Environment and reproduction
 
-Primary run on 30 July 2026:
+### Historical runs (30 July 2026)
 
-| Component | Version |
+| Component | macOS arm64 (primary) | Debian arm64 |
+| --- | --- | --- |
+| Platform | macOS 26.3, arm64 | Linux arm64 (`debian:bookworm-slim`) |
+| libSQL server (`sqld`) | 0.24.32 | 0.24.32 |
+| Embedded Rust `libsql` | 0.9.30 | not run (server path only) |
+| Turso Database (`tursodb`) | 0.7.1 | 0.7.1 |
+| Stock SQLite | 3.51.0 | 3.40.1 |
+
+### Refresh run (8 September 2026)
+
+| Component | Linux x86_64 |
 | --- | --- |
-| Platform | macOS 26.3, arm64 |
+| Platform | Linux x86_64 |
 | libSQL server (`sqld`) | 0.24.32 |
 | Embedded Rust `libsql` | 0.9.30 |
-| Turso Database (`tursodb`) | 0.7.1 |
-| Stock SQLite | 3.51.0 |
+| Turso Database (`tursodb`) | 0.7.2 (pinned release) |
+| Stock SQLite | 3.45.1 |
 
-The server-path reproduction also passed in a clean Debian Linux arm64
-environment with stock SQLite 3.40.1. The included GitHub Actions workflow
-runs the same assertions independently on Ubuntu x86-64. An earlier run with
-Turso Database 0.7.0 produced the same Turso parse error.
+The server-path reproduction also passed in the Debian environment above. The
+included GitHub Actions workflow runs the same assertions independently on
+Ubuntu x86-64. An earlier run with Turso Database 0.7.0 produced the same Turso
+parse error.
 
 As an upstream-current check, Turso Database main at
+[`81fdd4abe8120ed071e3fa0f25f127f60f2941e4`](https://github.com/tursodatabase/turso/commit/81fdd4abe8120ed071e3fa0f25f127f60f2941e4)
+(workspace version 0.8.0-pre.9 as of 8 September 2026) was not rebuilt here;
+Turso Database release 0.7.2 (tag
+[`v0.7.2`](https://github.com/tursodatabase/turso/releases/tag/v0.7.2), commit
+[`046e9cbf67d22491e8ecc941ec2891b02a9f3cad`](https://github.com/tursodatabase/turso/commit/046e9cbf67d22491e8ecc941ec2891b02a9f3cad))
+produced the same `invalid expression ... libsql_vector_idx` error. The
+previous upstream-current note for commit
 [`d95edf7b40bd2fce6c052e85de1a9c6423d0aec3`](https://github.com/tursodatabase/turso/commit/d95edf7b40bd2fce6c052e85de1a9c6423d0aec3)
-(built locally as 0.8.0-pre.2) produced the same
-`invalid expression ... libsql_vector_idx` error. libSQL main at
+(0.8.0-pre.2) remains historical evidence from 30 July 2026. libSQL main at
 [`6f451a1fabacbcbc9960b232b4c1605a5021979b`](https://github.com/tursodatabase/libsql/commit/6f451a1fabacbcbc9960b232b4c1605a5021979b)
 was source-audited; a local `sqld` build reached the final macOS link step but
 failed because a bundled pcre2 archive member was not Mach-O, so `sqld`
@@ -50,11 +67,13 @@ libSQL:
 ./reproduce.sh
 ```
 
-Recorded macOS and Debian results are included in
+Recorded macOS, Debian, and Linux x86_64 results are included in
 [`VERIFICATION.md`](./VERIFICATION.md). Public provenance for this package:
 
-- [Pinned evidence snapshot `f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b`](https://github.com/withnative/libsql-vector-portability-evidence/tree/f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b)
-- [Successful clean Ubuntu x86-64 workflow run](https://github.com/withnative/libsql-vector-portability-evidence/actions/runs/30550751954)
+- [Prior pinned evidence snapshot `f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b`](https://github.com/withnative/libsql-vector-portability-evidence/tree/f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b)
+- [Refreshed evidence snapshot `REFRESH_COMMIT`](https://github.com/withnative/libsql-vector-portability-evidence/tree/REFRESH_COMMIT) — substitute the commit SHA after push; see [`PUBLICATION.md`](./PUBLICATION.md)
+- [Successful clean Ubuntu x86-64 workflow run (July 2026)](https://github.com/withnative/libsql-vector-portability-evidence/actions/runs/30550751954)
+- [Native storage-portability protocol v1](https://github.com/withnative/native/tree/main/protocol/storage-portability/v1/) (research draft; this evidence informs the `turso-local` profile's convertible file-round-trip claims without implying managed Turso Cloud coverage)
 
 ## Minimal reproduction
 
@@ -112,7 +131,8 @@ Parse error near line 10: no such function: libsql_vector_idx
                            error here ---^
 ```
 
-Turso Database 0.7.1 refuses to open the same file:
+Turso Database 0.7.2 refuses to open the same file (0.7.1 produced the same
+parse error in the July 2026 runs):
 
 ```text
 Error: Parse error: Error: invalid expression in CREATE INDEX: libsql_vector_idx (v)
@@ -128,7 +148,7 @@ but without `CREATE INDEX ... libsql_vector_idx(...)`, passes
 The declared type and vector bytes are not themselves the portability problem.
 
 As a separate positive control, a vanilla database written by Turso Database
-0.7.1 passes stock SQLite's `integrity_check` without modification. On clean
+0.7.2 passes stock SQLite's `integrity_check` without modification. On clean
 shell exit, its WAL is empty or absent. That is a cleaner standalone-file
 result than current `sqld`, whose database requires an explicit checkpoint
 before copying.
@@ -196,7 +216,7 @@ PRAGMA integrity_check;
 
 The asserted recovery preserves the `embeddings` table and exact vector blob,
 restores `integrity_check = ok`, dumps and reimports cleanly, and allows Turso
-Database 0.7.1 to open and query the file.
+Database 0.7.2 to open and query the file.
 
 Two cautions matter for real databases:
 
@@ -249,7 +269,10 @@ Possible improvements include:
 - [Turso expression-index issue #1530](https://github.com/tursodatabase/turso/issues/1530)
 - [SQLite indexes on expressions](https://www.sqlite.org/expridx.html)
 - [libSQL main audited commit](https://github.com/tursodatabase/libsql/commit/6f451a1fabacbcbc9960b232b4c1605a5021979b)
-- [Turso Database main verified commit](https://github.com/tursodatabase/turso/commit/d95edf7b40bd2fce6c052e85de1a9c6423d0aec3)
+- [Turso Database 0.7.2 release](https://github.com/tursodatabase/turso/releases/tag/v0.7.2)
+- [Turso Database main audited commit (September 2026)](https://github.com/tursodatabase/turso/commit/81fdd4abe8120ed071e3fa0f25f127f60f2941e4)
+- [Native storage-portability protocol v1](https://github.com/withnative/native/tree/main/protocol/storage-portability/v1/)
+- [Proposed upstream COMPAT documentation patch](./proposed/turso-compat.patch) (not filed)
 - [Turso CLI audited commit](https://github.com/tursodatabase/turso-cli/commit/b65778d3f0721206a5642ba02d7a035f1e11f3f6)
 - [Commit adding `<index-name>_shadow_idx`](https://github.com/tursodatabase/libsql/commit/5eeba4330901f022963bf50cf35e3e7120cf1a09)
 - [Turso `db export` documentation](https://docs.turso.tech/cli/db/export)
