@@ -71,7 +71,8 @@ Recorded macOS, Debian, and Linux x86_64 results are included in
 [`VERIFICATION.md`](./VERIFICATION.md). Public provenance for this package:
 
 - [Prior pinned evidence snapshot `f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b`](https://github.com/withnative/libsql-vector-portability-evidence/tree/f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b)
-- [Refreshed evidence snapshot `REFRESH_COMMIT`](https://github.com/withnative/libsql-vector-portability-evidence/tree/REFRESH_COMMIT) — substitute the commit SHA after push; see [`PUBLICATION.md`](./PUBLICATION.md)
+- [Refreshed evidence snapshot `93b27f23960aeca6a19de17d02bc68684f2de93c`](https://github.com/withnative/libsql-vector-portability-evidence/tree/93b27f23960aeca6a19de17d02bc68684f2de93c)
+- [Successful clean Ubuntu x86-64 workflow run (September 2026)](https://github.com/withnative/libsql-vector-portability-evidence/actions/runs/34282794525)
 - [Successful clean Ubuntu x86-64 workflow run (July 2026)](https://github.com/withnative/libsql-vector-portability-evidence/actions/runs/30550751954)
 - [Native storage-portability protocol v1](https://github.com/withnative/native/tree/main/protocol/storage-portability/v1/) (research draft; this evidence informs the `turso-local` profile's convertible file-round-trip claims without implying managed Turso Cloud coverage)
 

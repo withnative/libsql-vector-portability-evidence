@@ -17,7 +17,7 @@ index dede2cb..e576646 100644
 +cross-engine schema-portability gap, not evidence of data corruption. Removing
 +the vector index and its shadow objects restores a conventional SQLite file.
 +Independent reproduction:
-+https://github.com/withnative/libsql-vector-portability-evidence/tree/REFRESH_COMMIT.
++https://github.com/withnative/libsql-vector-portability-evidence/tree/93b27f23960aeca6a19de17d02bc68684f2de93c.
 +
 +
  ## SQLite query language

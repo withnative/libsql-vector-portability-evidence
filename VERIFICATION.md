@@ -115,14 +115,15 @@ Parse error near line 10: no such function: libsql_vector_idx
 PASS: All expected portability failures and the remediation were reproduced.
 ```
 
-The server-path reproduction passed in the public package on a clean
-GitHub-hosted Ubuntu x86-64 runner at the July 2026 pinned evidence snapshot
+The server-path reproduction passed in the public package on clean
+GitHub-hosted Ubuntu x86-64 runners at both pinned evidence snapshots.
+The July 2026 snapshot is
 [`f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b`](https://github.com/withnative/libsql-vector-portability-evidence/tree/f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b).
-The [successful workflow run](https://github.com/withnative/libsql-vector-portability-evidence/actions/runs/30550751954)
-uploaded its exact `results.txt` transcript. After the refreshed evidence
-commit is pushed, replace `REFRESH_COMMIT` in this file and in
-[`REPORT.md`](./REPORT.md) with the immutable commit SHA and add the matching
-public workflow-run URL; see [`PUBLICATION.md`](./PUBLICATION.md).
+Its [successful workflow run](https://github.com/withnative/libsql-vector-portability-evidence/actions/runs/30550751954)
+uploaded the exact `results.txt` transcript. The September 2026 snapshot is
+[`93b27f23960aeca6a19de17d02bc68684f2de93c`](https://github.com/withnative/libsql-vector-portability-evidence/tree/93b27f23960aeca6a19de17d02bc68684f2de93c),
+and its [successful workflow run](https://github.com/withnative/libsql-vector-portability-evidence/actions/runs/34282794525)
+also uploaded the exact transcript.
 
 ## What the script asserts
 

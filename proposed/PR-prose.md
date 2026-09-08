@@ -15,9 +15,10 @@ curl -fsSLO https://raw.githubusercontent.com/tursodatabase/turso/81fdd4abe8120e
 git apply --check turso-compat.patch
 ```
 
-After the refreshed evidence snapshot is pushed and its public workflow passes,
-replace `REFRESH_COMMIT` in the patch with that immutable evidence commit SHA.
-Do not file the patch while the placeholder remains.
+The patch cites refreshed evidence snapshot
+[`93b27f23960aeca6a19de17d02bc68684f2de93c`](https://github.com/withnative/libsql-vector-portability-evidence/tree/93b27f23960aeca6a19de17d02bc68684f2de93c),
+whose [clean Ubuntu workflow](https://github.com/withnative/libsql-vector-portability-evidence/actions/runs/34282794525)
+passed before this draft was prepared for review.
 
 ## Why `tursodatabase/turso` rather than `tursodatabase/libsql`
 
