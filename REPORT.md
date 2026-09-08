@@ -16,14 +16,15 @@ vector-index schema objects restores a conventional SQLite database.
 
 ## Environment and reproduction
 
-Primary run on 30 July 2026:
+Primary run on 30 July 2026; refreshed on 8 September 2026 on Linux x86_64
+with the pinned release archives below:
 
 | Component | Version |
 | --- | --- |
 | Platform | macOS 26.3, arm64 |
 | libSQL server (`sqld`) | 0.24.32 |
 | Embedded Rust `libsql` | 0.9.30 |
-| Turso Database (`tursodb`) | 0.7.1 |
+| Turso Database (`tursodb`) | 0.7.2 (pinned release; 0.7.1 reproduced the same Turso parse error on 30 July 2026) |
 | Stock SQLite | 3.51.0 |
 
 The server-path reproduction also passed in a clean Debian Linux arm64
@@ -32,9 +33,15 @@ runs the same assertions independently on Ubuntu x86-64. An earlier run with
 Turso Database 0.7.0 produced the same Turso parse error.
 
 As an upstream-current check, Turso Database main at
+[`81fdd4abe8120ed071e3fa0f25f127f60f2941e4`](https://github.com/tursodatabase/turso/commit/81fdd4abe8120ed071e3fa0f25f127f60f2941e4)
+(workspace version 0.8.0-pre.9 as of 8 September 2026) was not rebuilt here;
+Turso Database release 0.7.2 (tag
+[`v0.7.2`](https://github.com/tursodatabase/turso/releases/tag/v0.7.2), commit
+[`046e9cbf67d22491e8ecc941ec2891b02a9f3cad`](https://github.com/tursodatabase/turso/commit/046e9cbf67d22491e8ecc941ec2891b02a9f3cad))
+produced the same `invalid expression ... libsql_vector_idx` error. The
+previous upstream-current note for commit
 [`d95edf7b40bd2fce6c052e85de1a9c6423d0aec3`](https://github.com/tursodatabase/turso/commit/d95edf7b40bd2fce6c052e85de1a9c6423d0aec3)
-(built locally as 0.8.0-pre.2) produced the same
-`invalid expression ... libsql_vector_idx` error. libSQL main at
+(0.8.0-pre.2) remains historical evidence from 30 July 2026. libSQL main at
 [`6f451a1fabacbcbc9960b232b4c1605a5021979b`](https://github.com/tursodatabase/libsql/commit/6f451a1fabacbcbc9960b232b4c1605a5021979b)
 was source-audited; a local `sqld` build reached the final macOS link step but
 failed because a bundled pcre2 archive member was not Mach-O, so `sqld`
@@ -50,11 +57,15 @@ libSQL:
 ./reproduce.sh
 ```
 
-Recorded macOS and Debian results are included in
+Recorded macOS, Debian, and Linux x86_64 results are included in
 [`VERIFICATION.md`](./VERIFICATION.md). Public provenance for this package:
 
-- [Pinned evidence snapshot `f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b`](https://github.com/withnative/libsql-vector-portability-evidence/tree/f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b)
-- [Successful clean Ubuntu x86-64 workflow run](https://github.com/withnative/libsql-vector-portability-evidence/actions/runs/30550751954)
+- [Prior pinned evidence snapshot `f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b`](https://github.com/withnative/libsql-vector-portability-evidence/tree/f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b)
+- [Successful clean Ubuntu x86-64 workflow run (July 2026)](https://github.com/withnative/libsql-vector-portability-evidence/actions/runs/30550751954)
+- [Native storage-portability protocol v1](https://github.com/withnative/native/tree/main/protocol/storage-portability/v1/) (research draft; this evidence informs the `turso-local` profile's convertible file-round-trip claims without implying managed Turso Cloud coverage)
+
+The immutable commit URL for this refresh will be recorded after the
+evidence snapshot is pushed; see [`PUBLICATION.md`](./PUBLICATION.md).
 
 ## Minimal reproduction
 
@@ -112,7 +123,8 @@ Parse error near line 10: no such function: libsql_vector_idx
                            error here ---^
 ```
 
-Turso Database 0.7.1 refuses to open the same file:
+Turso Database 0.7.2 refuses to open the same file (0.7.1 produced the same
+parse error in the July 2026 runs):
 
 ```text
 Error: Parse error: Error: invalid expression in CREATE INDEX: libsql_vector_idx (v)
@@ -128,7 +140,7 @@ but without `CREATE INDEX ... libsql_vector_idx(...)`, passes
 The declared type and vector bytes are not themselves the portability problem.
 
 As a separate positive control, a vanilla database written by Turso Database
-0.7.1 passes stock SQLite's `integrity_check` without modification. On clean
+0.7.2 passes stock SQLite's `integrity_check` without modification. On clean
 shell exit, its WAL is empty or absent. That is a cleaner standalone-file
 result than current `sqld`, whose database requires an explicit checkpoint
 before copying.
@@ -196,7 +208,7 @@ PRAGMA integrity_check;
 
 The asserted recovery preserves the `embeddings` table and exact vector blob,
 restores `integrity_check = ok`, dumps and reimports cleanly, and allows Turso
-Database 0.7.1 to open and query the file.
+Database 0.7.2 to open and query the file.
 
 Two cautions matter for real databases:
 
@@ -235,6 +247,31 @@ Possible improvements include:
 - allowing Turso Database to open such files with the unsupported index
   disabled, so the remaining data can be read and exported.
 
+## Archive-source blockers (not included)
+
+An earlier Native archive source (`1ea2173`) that might have covered additional
+Turso-local standalone-file checks is inaccessible from this refresh worker.
+Before adding any of the following public claims, this package requires an
+independent reproduction with pinned binaries and recorded transcripts:
+
+1. Turso `PRAGMA integrity_check` reporting `wrong # of entries in index` on a
+   pristine Turso-created offline copy.
+2. Stock SQLite's behaviour opening that same runtime file.
+3. Turso `PRAGMA wal_checkpoint` returning zero or hardcoded `log` and
+   `checkpointed` counters regardless of WAL state.
+
+On 8 September 2026, with Turso Database 0.7.1 and 0.7.2 release binaries, the
+refresh worker could not reproduce (1) on vanilla indexed tables, Turso
+expression indexes, offline main-file copies, or the partial-index UPDATE case
+from upstream issue #5168 (which now returns `ok`). For (3), Turso-owned files
+with empty or absent WAL sidecars correctly returned `0|0|0`, matching stock
+SQLite; on a live `sqld` 0.24.32 WAL with two frames, Turso returned
+`busy=0, log=2, checkpointed=2` while stock SQLite returned `0|0|0`. Those
+results do not substantiate a hardcoded-zero checkpoint counter on Turso-owned
+files, and the original archive scenario remains unknown. These claims are
+therefore omitted here; see [`ARCHIVE-BLOCKERS.md`](./ARCHIVE-BLOCKERS.md) for
+the exact commands attempted.
+
 ## References
 
 - [Reproduction script](./reproduce.sh)
@@ -249,7 +286,10 @@ Possible improvements include:
 - [Turso expression-index issue #1530](https://github.com/tursodatabase/turso/issues/1530)
 - [SQLite indexes on expressions](https://www.sqlite.org/expridx.html)
 - [libSQL main audited commit](https://github.com/tursodatabase/libsql/commit/6f451a1fabacbcbc9960b232b4c1605a5021979b)
-- [Turso Database main verified commit](https://github.com/tursodatabase/turso/commit/d95edf7b40bd2fce6c052e85de1a9c6423d0aec3)
+- [Turso Database 0.7.2 release](https://github.com/tursodatabase/turso/releases/tag/v0.7.2)
+- [Turso Database main audited commit (September 2026)](https://github.com/tursodatabase/turso/commit/81fdd4abe8120ed071e3fa0f25f127f60f2941e4)
+- [Native storage-portability protocol v1](https://github.com/withnative/native/tree/main/protocol/storage-portability/v1/)
+- [Proposed upstream COMPAT documentation patch](./proposed/turso-compat.patch) (not filed)
 - [Turso CLI audited commit](https://github.com/tursodatabase/turso-cli/commit/b65778d3f0721206a5642ba02d7a035f1e11f3f6)
 - [Commit adding `<index-name>_shadow_idx`](https://github.com/tursodatabase/libsql/commit/5eeba4330901f022963bf50cf35e3e7120cf1a09)
 - [Turso `db export` documentation](https://docs.turso.tech/cli/db/export)
