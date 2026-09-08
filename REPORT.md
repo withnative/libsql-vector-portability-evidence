@@ -1,6 +1,6 @@
 # libSQL vector-index exports are not operationally portable to stock SQLite or Turso Database
 
-Richard Ng · Native · 30 July 2026
+Richard Ng · Native · 30 July 2026 (refreshed 8 September 2026)
 
 ## Summary
 
@@ -8,7 +8,8 @@ A libSQL database containing an index created with
 `libsql_vector_idx(...)` remains a valid SQLite-format container, and its
 vector values remain ordinary portable blobs. However, the schema contains an
 engine-specific expression index that stock SQLite cannot validate or
-reimport, and Turso Database 0.7.1 refuses to open the file.
+reimport, and Turso Database 0.7.2 refuses to open the file (Turso Database
+0.7.1 produced the same parse error in the July 2026 historical runs).
 
 This is not evidence of data corruption. It is a narrow schema-portability
 gap: the application table and vector data remain readable, and removing the
@@ -16,21 +17,30 @@ vector-index schema objects restores a conventional SQLite database.
 
 ## Environment and reproduction
 
-Primary run on 30 July 2026; refreshed on 8 September 2026 on Linux x86_64
-with the pinned release archives below:
+### Historical runs (30 July 2026)
 
-| Component | Version |
+| Component | macOS arm64 (primary) | Debian arm64 |
+| --- | --- | --- |
+| Platform | macOS 26.3, arm64 | Linux arm64 (`debian:bookworm-slim`) |
+| libSQL server (`sqld`) | 0.24.32 | 0.24.32 |
+| Embedded Rust `libsql` | 0.9.30 | not run (server path only) |
+| Turso Database (`tursodb`) | 0.7.1 | 0.7.1 |
+| Stock SQLite | 3.51.0 | 3.40.1 |
+
+### Refresh run (8 September 2026)
+
+| Component | Linux x86_64 |
 | --- | --- |
-| Platform | macOS 26.3, arm64 |
+| Platform | Linux x86_64 |
 | libSQL server (`sqld`) | 0.24.32 |
 | Embedded Rust `libsql` | 0.9.30 |
-| Turso Database (`tursodb`) | 0.7.2 (pinned release; 0.7.1 reproduced the same Turso parse error on 30 July 2026) |
-| Stock SQLite | 3.51.0 |
+| Turso Database (`tursodb`) | 0.7.2 (pinned release) |
+| Stock SQLite | 3.45.1 |
 
-The server-path reproduction also passed in a clean Debian Linux arm64
-environment with stock SQLite 3.40.1. The included GitHub Actions workflow
-runs the same assertions independently on Ubuntu x86-64. An earlier run with
-Turso Database 0.7.0 produced the same Turso parse error.
+The server-path reproduction also passed in the Debian environment above. The
+included GitHub Actions workflow runs the same assertions independently on
+Ubuntu x86-64. An earlier run with Turso Database 0.7.0 produced the same Turso
+parse error.
 
 As an upstream-current check, Turso Database main at
 [`81fdd4abe8120ed071e3fa0f25f127f60f2941e4`](https://github.com/tursodatabase/turso/commit/81fdd4abe8120ed071e3fa0f25f127f60f2941e4)
@@ -61,11 +71,9 @@ Recorded macOS, Debian, and Linux x86_64 results are included in
 [`VERIFICATION.md`](./VERIFICATION.md). Public provenance for this package:
 
 - [Prior pinned evidence snapshot `f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b`](https://github.com/withnative/libsql-vector-portability-evidence/tree/f4f9a6ee53d95b8caa88ac140fc60d06bbd94d3b)
+- [Refreshed evidence snapshot `REFRESH_COMMIT`](https://github.com/withnative/libsql-vector-portability-evidence/tree/REFRESH_COMMIT) — substitute the commit SHA after push; see [`PUBLICATION.md`](./PUBLICATION.md)
 - [Successful clean Ubuntu x86-64 workflow run (July 2026)](https://github.com/withnative/libsql-vector-portability-evidence/actions/runs/30550751954)
 - [Native storage-portability protocol v1](https://github.com/withnative/native/tree/main/protocol/storage-portability/v1/) (research draft; this evidence informs the `turso-local` profile's convertible file-round-trip claims without implying managed Turso Cloud coverage)
-
-The immutable commit URL for this refresh will be recorded after the
-evidence snapshot is pushed; see [`PUBLICATION.md`](./PUBLICATION.md).
 
 ## Minimal reproduction
 
@@ -246,31 +254,6 @@ Possible improvements include:
   a supported removal recipe; or
 - allowing Turso Database to open such files with the unsupported index
   disabled, so the remaining data can be read and exported.
-
-## Archive-source blockers (not included)
-
-An earlier Native archive source (`1ea2173`) that might have covered additional
-Turso-local standalone-file checks is inaccessible from this refresh worker.
-Before adding any of the following public claims, this package requires an
-independent reproduction with pinned binaries and recorded transcripts:
-
-1. Turso `PRAGMA integrity_check` reporting `wrong # of entries in index` on a
-   pristine Turso-created offline copy.
-2. Stock SQLite's behaviour opening that same runtime file.
-3. Turso `PRAGMA wal_checkpoint` returning zero or hardcoded `log` and
-   `checkpointed` counters regardless of WAL state.
-
-On 8 September 2026, with Turso Database 0.7.1 and 0.7.2 release binaries, the
-refresh worker could not reproduce (1) on vanilla indexed tables, Turso
-expression indexes, offline main-file copies, or the partial-index UPDATE case
-from upstream issue #5168 (which now returns `ok`). For (3), Turso-owned files
-with empty or absent WAL sidecars correctly returned `0|0|0`, matching stock
-SQLite; on a live `sqld` 0.24.32 WAL with two frames, Turso returned
-`busy=0, log=2, checkpointed=2` while stock SQLite returned `0|0|0`. Those
-results do not substantiate a hardcoded-zero checkpoint counter on Turso-owned
-files, and the original archive scenario remains unknown. These claims are
-therefore omitted here; see [`ARCHIVE-BLOCKERS.md`](./ARCHIVE-BLOCKERS.md) for
-the exact commands attempted.
 
 ## References
 

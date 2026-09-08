@@ -1,52 +1,46 @@
+diff --git a/COMPAT.md b/COMPAT.md
+index dede2cb..e576646 100644
 --- a/COMPAT.md
 +++ b/COMPAT.md
-@@ -98,6 +98,30 @@
+@@ -98,6 +98,20 @@ an existing database that already contains invalid UTF-8 in a text column is
  affected the same way. Storing and reading blobs is not affected; bytes only
  change when they are converted to text.
  
 +**libSQL vector-index schema from `sqld` is not openable in Turso Database.**
 +A SQLite-format file produced by libSQL server (`sqld`) or embedded libSQL that
 +contains `CREATE INDEX ... ON ... (libsql_vector_idx(...))`, together with the
-+associated `libsql_vector_meta_shadow` and `<index>_shadow` objects, remains
-+readable by stock SQLite for the application table and vector blob columns, but
-+`PRAGMA integrity_check` and `.dump` reimport fail in stock SQLite because
-+`libsql_vector_idx()` is unknown there. Turso Database refuses to open the
-+whole file with `invalid expression in CREATE INDEX: libsql_vector_idx (...)`.
-+This is a cross-engine schema-portability gap, not evidence of data corruption.
-+The vector values themselves stay ordinary portable blobs. Removing the vector
-+index and its shadow objects restores a conventional SQLite file. Managed Turso
-+Cloud behaviour was not tested here. Reproduction:
-+[`withnative/libsql-vector-portability-evidence`](https://github.com/withnative/libsql-vector-portability-evidence).
++associated `libsql_vector_meta_shadow` and `<index>_shadow` objects, keeps its
++application table and vector blob columns readable in stock SQLite, but
++`PRAGMA integrity_check` and `.dump` reimport fail there because
++`libsql_vector_idx()` is unknown. Turso Database refuses to open the whole file
++with `invalid expression in CREATE INDEX: libsql_vector_idx (...)`. This is a
++cross-engine schema-portability gap, not evidence of data corruption. Removing
++the vector index and its shadow objects restores a conventional SQLite file.
++Independent reproduction:
++https://github.com/withnative/libsql-vector-portability-evidence.
 +
-+**Expression indexes must use Turso-supported expressions.** Turso supports
-+`CREATE INDEX ... ON table(expression)` for expressions it can compile, but
-+does not recognise libSQL-only marker functions such as `libsql_vector_idx()`.
-+See [Turso issue #3987](https://github.com/tursodatabase/turso/issues/3987).
 +
  ## SQLite query language
  
  ### Statements
-@@ -113,7 +137,7 @@
- | CREATE INDEX | ✅ Yes | |
- | CREATE TABLE | ✅ Yes | |
- | CREATE TABLE ... STRICT | ✅ Yes | |
- | CREATE TRIGGER | ✅ Yes | |
- | CREATE VIEW | ✅ Yes | |
- | CREATE VIRTUAL TABLE | ✅ Yes | |
- | DELETE | ✅ Yes | |
-@@ -1079,6 +1103,14 @@
+@@ -110,7 +124,7 @@ change when they are converted to text.
+ | BEGIN TRANSACTION         | ✅ Yes     |                                                                                   |
+ | COMMIT TRANSACTION        | ✅ Yes     |                                                                                   |
+ | CHECK                     | ✅ Yes     |                                                                                   |
+-| CREATE INDEX              | ✅ Yes     |                                                                                   |
++| CREATE INDEX              | ✅ Yes     | Expression indexes work for Turso-compiled expressions; libSQL-only markers such as `libsql_vector_idx(...)` prevent whole-file open (see Limitations). |
+ | CREATE TABLE              | ✅ Yes     |                                                                                   |
+ | CREATE TABLE ... STRICT   | ✅ Yes     |                                                                                   |
+ | CREATE TRIGGER            | ✅ Yes     |                                                                                   |
+@@ -1080,7 +1094,10 @@ The `regexp` extension is compatible with [sqlean-regexp](https://github.com/nal
  
  ### Vector
  
 -The `vector` extension is compatible with libSQL native vector search.
 +The `vector` extension covers libSQL-compatible vector *values* and distance
-+functions. It does **not** imply that libSQL DiskANN vector *indexes* created
++functions. It does not imply that libSQL DiskANN vector *indexes* created
 +with `libsql_vector_idx(...)` in libSQL server are openable in Turso Database
-+or portable through stock SQLite validation and dump/reimport workflows. libSQL
-+server stores those indexes as engine-specific expression-index schema plus
-+shadow tables; see the limitation above and
-+[libSQL PR #1591](https://github.com/tursodatabase/libsql/pull/1591) for the
-+intentional full-state dump semantics within libSQL.
++or portable through stock SQLite validation and dump/reimport workflows.
  
- | Function | Status | Comment |
+ | Function                                       | Status | Comment |
  |------------------------------------------------|--------|---------|

@@ -88,7 +88,7 @@ runner and uploads `results.txt`.
 
 This evidence informs the Native
 [storage-portability protocol v1](https://github.com/withnative/native/tree/main/protocol/storage-portability/v1/)
-research draft. Managed Turso Cloud was not tested.
+research draft.
 
 ## License
 

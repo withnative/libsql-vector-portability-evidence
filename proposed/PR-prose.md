@@ -2,8 +2,18 @@
 
 Target repository: **`tursodatabase/turso`** (Turso Database, `tursodb` CLI).
 
-Patch file: [`turso-compat.patch`](./turso-compat.patch) against `COMPAT.md`
-on the `main` branch as fetched on 8 September 2026.
+Patch file: [`turso-compat.patch`](./turso-compat.patch)
+
+Upstream base commit:
+[`81fdd4abe8120ed071e3fa0f25f127f60f2941e4`](https://github.com/tursodatabase/turso/commit/81fdd4abe8120ed071e3fa0f25f127f60f2941e4)
+(Turso `main` as of 8 September 2026).
+
+Verify before filing:
+
+```sh
+curl -fsSLO https://raw.githubusercontent.com/tursodatabase/turso/81fdd4abe8120ed071e3fa0f25f127f60f2941e4/COMPAT.md
+git apply --check turso-compat.patch
+```
 
 ## Why `tursodatabase/turso` rather than `tursodatabase/libsql`
 
@@ -44,5 +54,4 @@ that is out of scope for this minimal `COMPAT.md` patch.
 
 ## Filing status
 
-**Not filed.** No pull request, issue, or message was sent upstream as part of
-task `fc04d5a`.
+**Not filed.** No pull request, issue, or message was sent upstream.
