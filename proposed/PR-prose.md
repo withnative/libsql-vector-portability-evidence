@@ -15,6 +15,10 @@ curl -fsSLO https://raw.githubusercontent.com/tursodatabase/turso/81fdd4abe8120e
 git apply --check turso-compat.patch
 ```
 
+After the refreshed evidence snapshot is pushed and its public workflow passes,
+replace `REFRESH_COMMIT` in the patch with that immutable evidence commit SHA.
+Do not file the patch while the placeholder remains.
+
 ## Why `tursodatabase/turso` rather than `tursodatabase/libsql`
 
 | Concern | Correct upstream |
